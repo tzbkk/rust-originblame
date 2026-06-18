@@ -1,0 +1,33 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "ob"
+version = "0.2.0"
+description = "OriginBlame — Record- and token-level provenance tracking for AI training datasets"
+requires-python = ">=3.12"
+dependencies = [
+    "typer>=0.12.0",
+]
+
+[project.scripts]
+ob = "ob.cli.__main__:app"
+
+[tool.maturin]
+manifest-path = "../Cargo.toml"
+python-source = "src"
+features = ["python"]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.5.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+    "maturin>=1.0,<2.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"
+pythonpath = ["src"]

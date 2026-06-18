@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ob-util"
+version = "0.2.0"
+description = "OriginBlame utilities — parsers, reconcile, export-copyright"
+requires-python = ">=3.12"
+dependencies = ["ob>=0.1.0"]
+
+[project.optional-dependencies]
+mediawiki = [
+    "mwparserfromhell>=0.6.0",
+]
+reconcile = [
+    "torch>=2.0.0",
+    "sentence-transformers>=2.0.0",
+]
+export = []
+reconstruct = [
+    "matplotlib>=3.8.0",
+]
+all = [
+    "ob-util[mediawiki,reconcile,export,reconstruct]",
+]
+
+[project.entry-points."ob.commands"]
+reconcile = "ob_util.cli.reconcile_cmd:app"
+parse = "ob_util.cli.parse_cmd:app"
+export-copyright = "ob_util.cli.export_cmd:app"
+index = "ob_util.cli.index_cmd:app"
+reconstruct = "ob_util.cli.reconstruct_cmd:app"
+
+[project.entry-points."ob.parsers"]
+mediawiki = "ob_util.parsers.mediawiki:MediawikiParser"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ob_util"]

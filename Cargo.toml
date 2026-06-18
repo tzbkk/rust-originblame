@@ -1,0 +1,42 @@
+[package]
+name = "originblame"
+version = "0.2.0"
+edition = "2024"
+description = "Record- and token-level provenance tracking for AI training datasets"
+license = "MIT"
+repository = "https://github.com/tzbkk/rust-originblame"
+authors = ["Haolin Xue"]
+readme = "README.md"
+keywords = ["provenance", "attribution", "machine-unlearning", "training-data"]
+categories = ["command-line-utilities", "science"]
+
+[lib]
+name = "originblame"
+crate-type = ["cdylib", "rlib"]
+path = "src/lib.rs"
+
+[[bin]]
+name = "ob"
+path = "src/main.rs"
+
+[features]
+default = ["util", "python"]
+python = ["dep:pyo3"]
+util = ["dep:quick-xml", "dep:base64"]
+
+[dependencies]
+sha2 = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+hex = "0.4"
+memmap2 = "0.9"
+rayon = "1"
+quick-xml = { version = "0.37", optional = true }
+base64 = { version = "0.22", optional = true }
+pyo3 = { version = "0.24", features = ["extension-module"], optional = true }
+similar = { version = "2", features = ["inline"] }
+
+[dev-dependencies]
+tempfile = "3"
