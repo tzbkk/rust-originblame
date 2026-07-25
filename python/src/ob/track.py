@@ -109,18 +109,6 @@ def track(
             written=False,
         )
 
-    pid = os.getpid()
-
-    # Idempotency: check if already tracked.
-    existing = indexer.read_manifest(ob_dir, line_hash, file, sources, own_pid=pid)
-    if existing is not None:
-        return TrackResult(
-            line_hash=line_hash,
-            file=file,
-            sources=sources,
-            written=False,
-        )
-
     # WAL lifecycle: acquire lock, write, release.
     indexer.acquire_lock(ob_dir, pid)
     try:
