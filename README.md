@@ -186,57 +186,6 @@ A single section can reference both document-index shards and token-index ranges
 
 See the [OriginBlame README](https://github.com/tzbkk/originblame#key-results) for full benchmark results including pipeline throughput, scalability, reconcile recovery, and machine unlearning evaluation.
 
-## Repository Structure
-
-```
-rust-originblame/
-  src/                  Rust native implementation (25 files)
-    show.rs             Show provenance
-    token_index.rs      Token-index storage
-    token_bin_index.rs  OBIDXTI01 token binary index
-    main.rs             CLI entry point
-    merge.rs            Merge/absorb
-    binary_index.rs     OBIDXF02 binary index
-    python.rs           PyO3 bindings
-    purge.rs            Delete revoked data
-    revoke.rs           Revoke at 3 levels
-    index.rs            Binary index builder
-    clean.rs            Merge PIDs, archive
-    track.rs            Track data lines
-    generate_set.rs     Binary forget set
-    export.rs           DEP-5 copyright export
-    reconcile.rs        Hash + embedding reconcile
-    authors.rs          Author CRUD
-    mmap_lines.rs       mmap-based line iteration
-    storage.rs          JSONL read/append
-    indexer.rs          Document-index CRUD
-    lib.rs              Library root
-    register.rs         Section registration
-    embeddings.rs       Embedding storage
-    hash.rs             SHA-256 hashing
-    oplog.rs            Operation log
-    blame.rs            Blame lookup
-  python/               Python package with optional Rust backend
-    src/ob/             Core Python package (CLI, API, all modules)
-      api.py            High-level API (3-tier delegation)
-      _track.py         Track data with provenance
-      authors.py        Author management
-      cli/              CLI commands (typer-based)
-      embeddings.py     Embedding storage
-      exceptions.py     Error types
-      indexer.py        Document-index management
-      oplog.py          Operation log
-      register.py       Section registration
-      rust.py           Rust binary delegation
-      source.py         Source context manager
-      storage.py        JSONL utilities
-      track.py          Track implementation
-      util.py           Shared utilities
-    packages/
-      ob-util/          Optional utilities (parsers, embeddings, copyright)
-  Cargo.toml            Rust package manifest (edition 2024)
-```
-
 ## Tests
 
 ```bash
