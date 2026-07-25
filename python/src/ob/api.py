@@ -105,15 +105,18 @@ def register_section(
     authors: list[str],
     license: str,
     year: str,
+    contributors: list[str] | None = None,
     ob_dir: Path | str | None = None,
 ) -> str:
+    if contributors is None:
+        contributors = []
     if ob_dir is not None and not isinstance(ob_dir, Path):
         ob_dir = Path(ob_dir)
     if ob_dir is None:
         ob_dir = Path.cwd()
 
     if _NATIVE:
-        return _native_register_section(path, authors, license, year, str(ob_dir))
+        return _native_register_section(path, authors, contributors, license, year, str(ob_dir))
 
     from ob.rust import register_section as _rust_register_section
-    return _rust_register_section(path, authors, license, year, str(ob_dir))
+    return _rust_register_section(path, authors, contributors, license, year, str(ob_dir))

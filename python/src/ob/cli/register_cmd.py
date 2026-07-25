@@ -26,13 +26,14 @@ def add(
     authors: list[str] = typer.Option(..., "--authors", help="Author IDs"),
     license_name: str = typer.Option(..., "--license", help="License name"),
     year: str = typer.Option(..., "--year", help="Copyright year"),
+    contributors: list[str] = typer.Option([], "--contributors", help="Contributor IDs (secondary)"),
 ):
     """Add a new section to track"""
     from _ob_native import register_section as native_register
 
     ob_dir = get_ob_dir() or "."
     try:
-        native_register(path, authors, license_name, year, ob_dir)
+        native_register(path, authors, contributors or [], license_name, year, ob_dir)
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
         raise typer.Exit(1)
