@@ -100,6 +100,25 @@ def author_add(name: str, email: str, ob_dir: Path | str | None = None) -> str:
     return _rust_author_add(name, email, str(ob_dir))
 
 
+def _resolve_author_ids(names: list[str], ob_dir: Path) -> list[str]:
+    import json
+    name_to_id: dict[str, str] = {}
+    authors_root = ob_dir / ".ob" / "authors"
+    if authors_root.exists():
+        for f in authors_root.iterdir():
+            if not f.is_file():
+                continue
+            for line in f.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                try:
+                    d = json.loads(line)
+                    name_to_id[d["name"]] = d["id"]
+                except (json.JSONDecodeError, KeyError):
+                    continue
+    return [name_to_id[n] for n in names if n in name_to_id]
+
+
 def register_section(
     path: str,
     authors: list[str],
@@ -115,8 +134,11 @@ def register_section(
     if ob_dir is None:
         ob_dir = Path.cwd()
 
+    author_ids = _resolve_author_ids(authors, ob_dir)
+    contributor_ids = _resolve_author_ids(contributors, ob_dir)
+
     if _NATIVE:
-        return _native_register_section(path, authors, contributors, license, year, str(ob_dir))
+        return _native_register_section(path, author_ids, contributor_ids, license, year, str(ob_dir))
 
     from ob.rust import register_section as _rust_register_section
-    return _rust_register_section(path, authors, contributors, license, year, str(ob_dir))
+    return _rust_register_section(path, author_ids, contributor_ids, license, year, str(ob_dir))
