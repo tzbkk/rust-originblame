@@ -7,7 +7,7 @@ name = "ob-util"
 version = "0.2.0"
 description = "OriginBlame utilities — parsers, reconcile, export-copyright"
 requires-python = ">=3.12"
-dependencies = ["ob>=0.1.0"]
+dependencies = ["originblame>=0.2.0"]
 
 [project.optional-dependencies]
 mediawiki = [
