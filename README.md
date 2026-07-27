@@ -17,7 +17,13 @@ cargo build --release
 
 ## Python Package
 
-A Python package with an optional Rust backend is available in `python/`:
+Install from PyPI:
+
+```bash
+pip install originblame
+```
+
+Or from source:
 
 ```bash
 cd python
