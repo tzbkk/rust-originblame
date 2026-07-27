@@ -32,6 +32,16 @@ except ImportError:
 
 
 def init(force: bool = False, ob_dir: Path | str | None = None) -> None:
+    """Initialize a `.ob/` provenance tracking directory.
+
+    Args:
+        force: If True, re-initialize even if `.ob/` exists with a valid version.
+        ob_dir: Repository root directory. Defaults to cwd if None.
+
+    Raises:
+        OBInitError: If `.ob/` exists but lacks the `ob-version` file
+            (invalid state) and force is False.
+    """
     if ob_dir is not None and not isinstance(ob_dir, Path):
         ob_dir = Path(ob_dir)
     if ob_dir is None:
@@ -88,6 +98,16 @@ def _update_root_gitignore(ob_dir: Path) -> None:
 
 
 def author_add(name: str, email: str, ob_dir: Path | str | None = None) -> str:
+    """Register an author and return their author_id.
+
+    Args:
+        name: Author display name.
+        email: Author email.
+        ob_dir: Repository root directory. Defaults to cwd if None.
+
+    Returns:
+        The 64-character SHA-256 author_id computed from name and email.
+    """
     if ob_dir is not None and not isinstance(ob_dir, Path):
         ob_dir = Path(ob_dir)
     if ob_dir is None:
@@ -127,6 +147,23 @@ def register_section(
     contributors: list[str] | None = None,
     ob_dir: Path | str | None = None,
 ) -> str:
+    """Register a section (provenance metadata for a file path) and return its section_hash.
+
+    Args:
+        path: File path, e.g. "raw/wiki.xml".
+        authors: List of author names/emails to resolve to author_ids.
+        license: SPDX identifier, e.g. "CC-BY-SA-4.0".
+        year: Year string, e.g. "2024".
+        contributors: Optional list of contributor names/emails.
+        ob_dir: Repository root directory. Defaults to cwd if None.
+
+    Returns:
+        The 64-character SHA-256 section_hash.
+
+    Raises:
+        OBSectionError: If any author/contributor cannot be resolved
+            (delegated to register.register_section).
+    """
     if contributors is None:
         contributors = []
     if ob_dir is not None and not isinstance(ob_dir, Path):
