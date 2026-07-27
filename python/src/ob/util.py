@@ -6,7 +6,6 @@ import hashlib
 import json
 import urllib.parse
 from pathlib import Path
-from typing import Union
 
 from ob.exceptions import OBNotInitializedError
 
@@ -21,7 +20,7 @@ __all__ = [
 ]
 
 
-def compute_hash(data: Union[dict, str]) -> str:
+def compute_hash(data: dict | str) -> str:
     """Compute SHA-256 hex digest for dict or str data.
 
     Args:

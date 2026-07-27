@@ -6,7 +6,6 @@ import hashlib
 import json
 from collections import defaultdict
 from pathlib import Path
-from typing import Optional
 
 from ob.exceptions import OBSectionError
 from ob.oplog import append_log
@@ -118,7 +117,7 @@ def register_section(
     authors: list[str],
     license: str,
     year: str,
-    chain_manifest: Optional[str] = None,
+    chain_manifest: str | None = None,
 ) -> str:
     """Add a section record. Idempotent -- same hash -> skip and return.
 
