@@ -38,6 +38,15 @@ def _dedup_key(ob_dir: Path) -> set[tuple[str, str, tuple[str, ...]]]:
 
 
 def invalidate_manifest_cache(ob_dir: Path | None = None) -> None:
+    """Clear the in-memory manifest dedup cache.
+
+    If ``ob_dir`` is given, clears only that repository's cache entries
+    (dedup and unmerged-PID check); otherwise clears the caches for all
+    repositories.
+
+    Args:
+        ob_dir: Repository root directory. If *None*, all caches are cleared.
+    """
     if ob_dir is None:
         _dedup_cache.clear()
         _unmerged_checked.clear()
@@ -52,7 +61,14 @@ def _pid_file_path(ob_dir: Path, pid: int) -> Path:
 
 
 def track_write(ob_dir: Path, pid: int, entry: dict) -> None:
-    """Write an index entry to the PID-specific flat file (not sharded)."""
+    """Write an index entry to the PID-specific flat file (not sharded).
+
+    Args:
+        ob_dir: Repository root directory.
+        pid: Process ID used for PID-file naming.
+        entry: Record dict with keys: ``line_hash``, ``file``,
+            ``sources``, ``source_type``, ``revoked``.
+    """
     path = _pid_file_path(ob_dir, pid)
     jsonl_append(path, entry)
 
@@ -60,18 +76,43 @@ def track_write(ob_dir: Path, pid: int, entry: dict) -> None:
 def track_write_embedding(
     ob_dir: Path, pid: int, model: str, line_hash: str, embedding: list[float]
 ) -> None:
+    """Append an embedding record to the PID-specific embedding file.
 
+    Args:
+        ob_dir: Repository root directory.
+        pid: Process ID used for PID-file naming.
+        model: Embedding model name.
+        line_hash: 64-char SHA-256 hex of the tracked line.
+        embedding: Float vector.
+    """
     path = ob_dir / ".ob" / f"embeddings.{model}.{pid}"
     jsonl_append(path, {"line_hash": line_hash, "embedding": embedding})
 
 
 def get_lock_path(ob_dir: Path, pid: int) -> Path:
+    """Return the path to the WAL lock file for a given PID.
 
+    Args:
+        ob_dir: Repository root directory.
+        pid: Process ID.
+
+    Returns:
+        Path to ``.ob/lock.{pid}``.
+    """
     return ob_dir / ".ob" / f"lock.{pid}"
 
 
 def acquire_lock(ob_dir: Path, pid: int) -> None:
+    """Acquire the WAL write lock by creating a lock file.
 
+    Args:
+        ob_dir: Repository root directory.
+        pid: Process ID.
+
+    Raises:
+        OBTrackError: If a lock file already exists for this PID
+            (re-entrant write attempted).
+    """
     lock_path = get_lock_path(ob_dir, pid)
     if lock_path.exists():
         raise OBTrackError(f"lock file already exists for pid {pid}")
@@ -80,12 +121,27 @@ def acquire_lock(ob_dir: Path, pid: int) -> None:
 
 
 def release_lock(ob_dir: Path, pid: int) -> None:
+    """Release the WAL write lock by removing the lock file.
 
+    No-op if the lock file does not exist.
+
+    Args:
+        ob_dir: Repository root directory.
+        pid: Process ID.
+    """
     lock_path = get_lock_path(ob_dir, pid)
     lock_path.unlink(missing_ok=True)
 
 
 def list_pid_files(ob_dir: Path) -> list[Path]:
+    """List all unmerged PID files (``docidx.*``) in the ``.ob/`` directory.
+
+    Args:
+        ob_dir: Repository root directory.
+
+    Returns:
+        List of Paths to PID files. Empty list if ``.ob/`` does not exist.
+    """
     ob = ob_dir / ".ob"
     if not ob.exists():
         return []
@@ -119,6 +175,26 @@ def read_manifest(
     *,
     own_pid: int | None = None,
 ) -> dict | None:
+    """Look up an existing manifest entry by (line_hash, file, sources).
+
+    Uses an in-memory dedup cache to skip repeated shard reads for the
+    same lookup key.
+
+    Args:
+        ob_dir: Repository root directory.
+        line_hash: 64-char SHA-256 hex of the tracked line.
+        file: File path associated with the entry.
+        sources: List of section hashes.
+        own_pid: If set, skip this PID's own PID file during the
+            unmerged-files check.
+
+    Returns:
+        The matching record dict, or *None* if not found.
+
+    Raises:
+        OBStorageError: If unmerged PID files from other processes are
+            detected (run ``ob clean`` first).
+    """
     _check_unmerged_pid_files(ob_dir, own_pid=own_pid)
 
     sorted_sources = tuple(sorted(sources))
@@ -143,10 +219,28 @@ def read_manifest(
 
 
 def read_all_manifest(ob_dir: Path) -> list[dict]:
+    """Read all manifest records across all shards (full scan).
+
+    Args:
+        ob_dir: Repository root directory.
+
+    Returns:
+        List of all manifest records.
+    """
     return list(shard_iterate_all(ob_dir, LAYER_MANIFEST))
 
 
 def is_revoked(ob_dir: Path, section_hash: str) -> bool:
+    """Check whether a section has been revoked.
+
+    Args:
+        ob_dir: Repository root directory.
+        section_hash: Section hash to look up.
+
+    Returns:
+        True if the section's ``revoked`` field is True; False if the
+        section is not found or not revoked.
+    """
     # Lazy import to avoid circular dependency when section module isn't ready
     from ob.register import get_section
 
