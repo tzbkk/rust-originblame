@@ -61,6 +61,48 @@ pip install ./python/packages/ob-util
 pip install ./python/packages/ob-util[reconcile]   # with torch + sentence-transformers
 ```
 
+### Python API Reference
+
+All functions are importable from the top-level `ob` package:
+
+```python
+from ob import init, author_add, register_section, track, source
+from ob.exceptions import ODError  # base exception
+```
+
+#### `init(force=False, ob_dir=None)`
+Initialize a `.ob/` tracking directory in `ob_dir` (defaults to cwd). Raises `OBInitError` if `.ob/` exists but is invalid.
+
+#### `author_add(name, email, ob_dir=None) -> str`
+Register an author. Returns the 64-char SHA-256 `author_id` (hash of name+email).
+
+#### `register_section(path, authors, license, year, contributors=None, ob_dir=None) -> str`
+Register a section linking a file path to authors and license. `authors` is a list of names/emails to resolve. Returns the 64-char `section_hash`.
+
+#### `track(data, file, embedding=None, model=None, *, source=None, ob_dir=None) -> TrackResult`
+Record a provenance entry for `data` (dict or str) in `file`.
+- `source`: file path (resolves to all sections for that file), list of section hashes, or `None` (uses the source stack).
+- `embedding`/`model`: optional embedding vector + model name (must be provided together).
+- Returns a `TrackResult` with `.line_hash`, `.file`, `.sources`, `.written` (False if idempotent skip).
+
+#### Source stack: `source.append()` / `source.pop()`
+Thread-local stack for implicit source assignment:
+```python
+source.append("raw/wiki.xml")        # push all sections for this file
+source.append("raw/wiki.xml", section="abc123...")  # push one section
+track(data, "data.jsonl")            # uses source stack
+source.pop()                         # pop top entry
+
+# Context manager (auto push/pop):
+from ob.source import sources
+with sources("raw/wiki.xml"):
+    track(data, "data.jsonl")
+```
+
+#### Exceptions
+All errors inherit from `ODError`:
+`OBInitError`, `OBNotInitializedError`, `OBAuthorError`, `OBSectionError`, `OBSourceError`, `OBTrackError`, `OBStorageError`, `OBRevokeError`, `OBPurgeError`, `OBCleanError`, `OBMergeError`.
+
 ## CLI Reference
 
 ```
