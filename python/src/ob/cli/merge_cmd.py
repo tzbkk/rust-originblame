@@ -23,7 +23,7 @@ def absorb_cmd(
     source: str = typer.Argument(..., help="Source repository root containing .ob/"),
 ):
     """Merge another repository's provenance into current repository."""
-    from _ob_native import merge_absorb
+    from ob._ob_native import merge_absorb
 
     ob_dir_override = get_ob_dir()
     target = str(Path(ob_dir_override).resolve()) if ob_dir_override else "."

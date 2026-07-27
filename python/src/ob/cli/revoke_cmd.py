@@ -32,7 +32,7 @@ def revoke(
     ),
 ):
     """Revoke author claims at author, section, or line granularity."""
-    from _ob_native import revoke_by_author as native_revoke
+    from ob._ob_native import revoke_by_author as native_revoke
 
     if all(v is None for v in (email, author_id, file, section_hash)):
         typer.echo(

@@ -24,7 +24,7 @@ class _SourceCtx:
         if ob_dir is None:
             ob_dir = Path.cwd()
 
-        from _ob_native import author_query, register_section as _rs, shard_iterate_all
+        from ob._ob_native import author_query, register_section as _rs, shard_iterate_all
 
         section_records = shard_iterate_all(str(ob_dir), "sections")
         matching = [r for r in section_records if r.get("path") == file]
@@ -77,6 +77,6 @@ def track(
     section_hashes = source.get_active_section_hashes()
     sources = sorted(section_hashes)
 
-    from _ob_native import track as _native_track
+    from ob._ob_native import track as _native_track
 
     return _native_track(data, file, sources, str(ob_dir))

@@ -343,6 +343,6 @@ def merge_absorb(
         Dict with keys: authors_added, sections_added, document_added,
         token_index_added, skipped.
     """
-    from _ob_native import merge_absorb as _native_merge
+    from ob._ob_native import merge_absorb as _native_merge
 
     return _native_merge(str(source), str(ob_dir))

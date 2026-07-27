@@ -23,7 +23,7 @@ def show(
     ),
 ):
     """Show provenance information grouped by author, section, and data files."""
-    from _ob_native import (
+    from ob._ob_native import (
         show_by_author as native_show_by_author,
         show_by_section as native_show_by_section,
         show_by_license as native_show_by_license,

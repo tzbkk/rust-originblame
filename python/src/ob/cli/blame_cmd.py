@@ -14,7 +14,7 @@ def blame(
     json_output: bool = typer.Option(False, "--json", help="Output as JSON"),
 ):
     """Show provenance for a specific line in a data file."""
-    from _ob_native import blame as native_blame
+    from ob._ob_native import blame as native_blame
     from ob.cli import get_ob_dir
 
     ob_dir = get_ob_dir() or "."

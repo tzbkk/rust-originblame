@@ -14,7 +14,7 @@ def build(
     ob_dir: str = typer.Option(".", "-d", "--dir", help="Repository root directory"),
 ):
     """Build the provenance index for fast lookups."""
-    from _ob_native import build_index as native_build
+    from ob._ob_native import build_index as native_build
 
     target_dir = get_ob_dir() or ob_dir
     try:

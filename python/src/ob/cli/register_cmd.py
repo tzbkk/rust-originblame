@@ -29,7 +29,7 @@ def add(
     contributors: list[str] = typer.Option([], "--contributors", help="Contributor IDs (secondary)"),
 ):
     """Add a new section to track"""
-    from _ob_native import register_section as native_register
+    from ob._ob_native import register_section as native_register
 
     ob_dir = get_ob_dir() or "."
     try:

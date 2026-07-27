@@ -14,7 +14,7 @@ def init(
     force: bool = typer.Option(False, "--force", help="Force overwrite invalid .ob/"),
 ):
     """Create .ob/ directory structure (idempotent)"""
-    from _ob_native import init as native_init
+    from ob._ob_native import init as native_init
 
     ob_dir = get_ob_dir() or "."
     try:

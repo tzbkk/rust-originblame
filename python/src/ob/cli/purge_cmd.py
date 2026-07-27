@@ -32,7 +32,7 @@ def purge(
     ),
 ):
     """Physically delete revoked data lines from a tracked file."""
-    from _ob_native import purge_revoked as native_purge
+    from ob._ob_native import purge_revoked as native_purge
 
     if not file:
         typer.echo("Error: specify --file", err=True)

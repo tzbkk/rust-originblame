@@ -24,7 +24,7 @@ def add(
     email: str = typer.Argument(..., help="Author email"),
 ):
     """Add a new author to the repository"""
-    from _ob_native import author_add as native_author_add
+    from ob._ob_native import author_add as native_author_add
 
     ob_dir = get_ob_dir() or "."
     try:

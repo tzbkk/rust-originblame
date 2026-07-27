@@ -20,7 +20,7 @@ _OB_SUBDIRS = [
 _OB_GITIGNORE_CONTENT = "*.pid\nlock.*\nbackup/*\narchive/*\n"
 
 try:
-    from _ob_native import (
+    from ob._ob_native import (
         init as _native_init,
         author_add as _native_author_add,
         register_section as _native_register_section,
