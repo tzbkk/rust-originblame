@@ -22,6 +22,15 @@ def bucket_path(ob_dir: Path, layer: str, hash_hex: str) -> Path:
 
     Shard files are stored in .ob/{layer}/{first_2_hex}
     Files have no suffix (e.g., "00", "01", ..., "ff")
+
+    Args:
+        ob_dir: Root directory of the repository.
+        layer: Layer name (e.g., "authors", "sections", "document-index",
+            "index").
+        hash_hex: Hash hex string.
+
+    Returns:
+        Path to the shard file for the given hash.
     """
     bucket = hash_hex[:2].lower()
     return ob_dir / ".ob" / layer / bucket
@@ -120,7 +129,7 @@ def shard_read(ob_dir: Path, layer: str, hash_hex: str) -> list[dict]:
 
     Args:
         ob_dir: Root directory of the repository
-        layer: Layer name (e.g., "blob", "commit", "tree")
+        layer: Layer name (e.g., "authors", "sections", "document-index", "index")
         hash_hex: Hash hex string
 
     Returns:
@@ -137,7 +146,7 @@ def shard_append(ob_dir: Path, layer: str, hash_hex: str, record: dict) -> None:
 
     Args:
         ob_dir: Root directory of the repository
-        layer: Layer name (e.g., "blob", "commit", "tree")
+        layer: Layer name (e.g., "authors", "sections", "document-index", "index")
         hash_hex: Hash hex string
         record: Record to append
     """
@@ -150,7 +159,7 @@ def shard_iterate_all(ob_dir: Path, layer: str) -> Iterator[dict]:
 
     Args:
         ob_dir: Root directory of the repository
-        layer: Layer name (e.g., "blob", "commit", "tree")
+        layer: Layer name (e.g., "authors", "sections", "document-index", "index")
 
     Yields:
         Records from all shard files. Non-existent shard files are skipped.
