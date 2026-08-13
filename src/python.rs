@@ -513,6 +513,7 @@ fn _ob_native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(revoke_by_author, m)?)?;
     m.add_function(wrap_pyfunction!(revoke_section, m)?)?;
     m.add_function(wrap_pyfunction!(revoke_by_author_token, m)?)?;
+    m.add_function(wrap_pyfunction!(revoke_manifest, m)?)?;
     m.add_function(wrap_pyfunction!(purge_revoked, m)?)?;
     m.add_function(wrap_pyfunction!(purge_by_author_indexd, m)?)?;
     m.add_function(wrap_pyfunction!(purge_reverse, m)?)?;
