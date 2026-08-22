@@ -117,8 +117,9 @@ fn track(
 // ---------------------------------------------------------------------------
 
 #[pyfunction]
-fn index_document(ob_dir: &str, line_hash: &str, file: &str, sources: Vec<String>) -> PyResult<()> {
-    crate::indexer::index_document(Path::new(ob_dir), line_hash, file, &sources).map_err(to_err)
+#[pyo3(signature = (ob_dir, line_hash, file, sources, source_type = "track"))]
+fn index_document(ob_dir: &str, line_hash: &str, file: &str, sources: Vec<String>, source_type: &str) -> PyResult<()> {
+    crate::indexer::index_document(Path::new(ob_dir), line_hash, file, &sources, source_type).map_err(to_err)
 }
 
 #[pyfunction]

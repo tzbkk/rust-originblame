@@ -379,6 +379,7 @@ mod tests {
             "aaaa1111111111aaaa1111111111aaaa1111111111aaaa1111",
             "data.jsonl",
             &["sec1".to_string()],
+            "track",
         )
         .unwrap();
 
@@ -432,6 +433,7 @@ mod tests {
             "aaaa1111111111aaaa1111111111aaaa1111111111aaaa1111",
             "data.jsonl",
             &["sec1".to_string()],
+            "track",
         )
         .unwrap();
         crate::indexer::index_document(
@@ -439,6 +441,7 @@ mod tests {
             "aaaa2222222222aaaa2222222222aaaa2222222222aaaa2222",
             "data.jsonl",
             &["sec2".to_string()],
+            "track",
         )
         .unwrap();
 

@@ -10,13 +10,14 @@ pub struct DocumentRecord {
     pub sources: Vec<String>,
 }
 
-pub fn index_document(ob_dir: &Path, line_hash: &str, file: &str, sources: &[String]) -> Result<()> {
+pub fn index_document(ob_dir: &Path, line_hash: &str, file: &str, sources: &[String], source_type: &str) -> Result<()> {
     let bucket = &line_hash[..2];
     let shard_path = ob_dir.join(".ob").join("document-index").join(bucket);
     let record = serde_json::json!({
         "line_hash": line_hash,
         "file": file,
         "sources": sources,
+        "source_type": source_type,
         "revoked": false,
     });
     std::fs::OpenOptions::new()

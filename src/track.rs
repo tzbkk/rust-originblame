@@ -9,7 +9,7 @@ pub fn track(
     tokenizer: Option<&str>,
 ) -> anyhow::Result<String> {
     let line_hash = crate::hash::compute_hash(data);
-    crate::indexer::index_document(ob_dir, &line_hash, file, sources)?;
+    crate::indexer::index_document(ob_dir, &line_hash, file, sources, "track")?;
 
     if let (Some(tc), Some(tok)) = (token_count, tokenizer) {
         crate::token_index::write_pid(ob_dir, tok, tc, sources)?;
@@ -88,6 +88,13 @@ mod tests {
 
         let manifest_bucket = ob_dir.join(".ob").join("document-index").join(&line_hash[..2]);
         assert!(manifest_bucket.exists());
+
+        let records = crate::storage::jsonl_read(&manifest_bucket).unwrap();
+        assert_eq!(records.len(), 1);
+        assert_eq!(
+            records[0].get("source_type").and_then(|v| v.as_str()).unwrap(),
+            "track"
+        );
 
         let gpt2_files = crate::token_index::list_pid_files(&ob_dir, "gpt2").unwrap();
         assert!(gpt2_files.is_empty());
