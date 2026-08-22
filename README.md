@@ -191,7 +191,7 @@ A single section can reference both document-index shards and token-index ranges
 {"token_count": 5, "sources": ["a3f7b2..."], "tokenizer": "gpt2", "revoked": false}
 ```
 
-- `token_count`: tokens produced from one document (or one chunk if > max_context_tokens)
+- `token_count`: tokens produced from one document
 - `sources`: section hashes linking to the author chain
 - `tokenizer`: identifier string (e.g., "gpt2", "llama3")
 - `revoked`: boolean, marks entry as revoked
