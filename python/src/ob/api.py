@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import ob
-from ob.exceptions import OBInitError
+from ob.exceptions import OBInitError, OBSectionError
 
 __all__ = ["init", "author_add", "register_section"]
 
@@ -120,23 +121,99 @@ def author_add(name: str, email: str, ob_dir: Path | str | None = None) -> str:
     return _rust_author_add(name, email, str(ob_dir))
 
 
+_author_state: dict[str, dict] = {}
+# ob_dir → {"shards": {分片名: (签名, {name: {id}})}, "merged": {name: {id}}}
+# 解析按分片增量刷新:stat 对比签名,只有变化的分片才读盘,merged 原地增减
+
+
+def _parse_author_shard(path: Path) -> dict[str, set[str]]:
+    names: dict[str, set[str]] = {}
+    try:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                d = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            nid, nm = d.get("id"), d.get("name")
+            if nid and nm:
+                names.setdefault(nm, set()).add(nid)
+    except OSError:
+        pass
+    return names
+
+
+def _subtract(merged: dict[str, set[str]], shard_names: dict[str, set[str]]) -> None:
+    for nm, ids in shard_names.items():
+        left = merged.get(nm)
+        if left is None:
+            continue
+        left -= ids
+        if not left:
+            del merged[nm]
+
+
 def _resolve_author_ids(names: list[str], ob_dir: Path) -> list[str]:
-    import json
-    name_to_id: dict[str, str] = {}
-    authors_root = ob_dir / ".ob" / "authors"
-    if authors_root.exists():
-        for f in authors_root.iterdir():
+    """Resolve author names to author_ids via a per-shard incremental cache.
+
+    The pre-0.2.2 implementation re-read and re-parsed the whole authors
+    shard layer on *every* call -- O(total authors) per resolve and
+    O(sections x authors) over a build. Now each shard carries a
+    (size, mtime_ns) signature; a resolve call stats the shards and
+    re-reads only the ones that changed, so both read-mostly consumers
+    and interleaved append-then-register writers stay cheap.
+
+    Raises:
+        OBSectionError: If any name cannot be resolved (previously such
+            names were silently dropped from the section record).
+    """
+    key = str(ob_dir)
+    st = _author_state.get(key)
+    if st is None:
+        st = _author_state[key] = {"shards": {}, "merged": {}}
+    shards, merged = st["shards"], st["merged"]
+
+    root = ob_dir / ".ob" / "authors"
+    try:
+        files = sorted(root.iterdir())
+    except OSError:
+        files = []
+    live: set[str] = set()
+    for f in files:
+        try:
             if not f.is_file():
                 continue
-            for line in f.read_text(encoding="utf-8").splitlines():
-                if not line.strip():
-                    continue
-                try:
-                    d = json.loads(line)
-                    name_to_id[d["name"]] = d["id"]
-                except (json.JSONDecodeError, KeyError):
-                    continue
-    return [name_to_id[n] for n in names if n in name_to_id]
+            fstat = f.stat()
+        except OSError:
+            continue
+        live.add(f.name)
+        sig = (fstat.st_size, fstat.st_mtime_ns)
+        cached = shards.get(f.name)
+        if cached is not None and cached[0] == sig:
+            continue
+        if cached is not None:
+            _subtract(merged, cached[1])
+        new_names = _parse_author_shard(f)
+        for nm, ids in new_names.items():
+            merged.setdefault(nm, set()).update(ids)
+        shards[f.name] = (sig, new_names)
+
+    for gone in set(shards) - live:
+        _subtract(merged, shards.pop(gone)[1])
+
+    resolved: list[str] = []
+    missing: list[str] = []
+    for n in names:
+        ids = merged.get(n)
+        if ids:
+            resolved.append(sorted(ids)[0])
+        else:
+            missing.append(n)
+    if missing:
+        preview = ", ".join(missing[:5])
+        raise OBSectionError(f"unresolvable author name(s): {preview}")
+    return resolved
 
 
 def register_section(
