@@ -4,7 +4,7 @@ Public API: init(), author_add(), register_section(), track(), source.
 Three-layer model: authors ← sections ← document-index.
 """
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 from ob.exceptions import ODError  # noqa: F401
 from ob.api import init, author_add, register_section  # noqa: F401

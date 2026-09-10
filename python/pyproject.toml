@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "originblame"
-version = "0.2.1"
+version = "0.2.2"
 description = "Record- and token-level data provenance for AI training datasets"
 readme = "PYPI.md"
 requires-python = ">=3.12"

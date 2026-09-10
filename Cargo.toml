@@ -1,6 +1,6 @@
 [package]
 name = "originblame"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2024"
 description = "Record- and token-level provenance tracking for AI training datasets"
 license = "MIT"
